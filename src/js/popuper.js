@@ -11,7 +11,6 @@ export default class Popuper {
         if (!this.popupContainer) {
             throw new Error('Something went wrong with the popup initiaization. We were unable to find the .popup-container element in the DOM.');
         }
-        this.bindEvents();
     }
 
     get totalTipCountSpan() {
@@ -50,6 +49,7 @@ export default class Popuper {
                     this.tips = tips;
                     this.updateTipsCount();
                     this.setCurrentTipNumber(this.popupStatus.currentTipNo);
+                    this.bindEvents();
                     this.setPopupVisibility(true);
                 });
             }
@@ -83,26 +83,53 @@ export default class Popuper {
         this.loadCurrentTip();
     }
 
+    showNextTip() {
+        this.setCurrentTipNumber(this.popupStatus.currentTipNo + 1);
+        this.settingsStorage.storeStatus(this.popupStatus);
+    }
+
+    showPrevTip() {
+        this.setCurrentTipNumber(this.popupStatus.currentTipNo - 1);
+        this.settingsStorage.storeStatus(this.popupStatus);
+    }
+
+    closePopup() {
+        this.setPopupVisibility(false);
+        this.popupContainer.remove();
+        document.removeEventListener('keydown', this.boundKbEventsHandler);
+    }
+
+    handleKeyboardEvents(event) {
+        switch (event.keyCode) {
+            // Right arrow
+            case 39: {
+                this.showNextTip();
+                break;
+            }
+            // LeftArrow
+            case 37: {
+                this.showPrevTip();
+                break;
+            }
+            // ESC key
+            case 27: {
+                this.closePopup();
+                break;
+            }
+        }
+    }
+
+    handleCheckboxToggle(event) {
+        this.popupStatus.enabled = !event.target.checked;
+        this.settingsStorage.storeStatus(this.popupStatus);
+    }
+
     bindEvents() {
-        this.closeButton.addEventListener('click', () => {
-            this.popupStatus.enabled = false;
-            this.setPopupVisibility(false);
-            this.popupStatus.storeStatus(this.popupStatus);
-        });
-
-        this.nextTipButton.addEventListener('click', () => {
-            this.setCurrentTipNumber(this.popupStatus.currentTipNo + 1);
-            this.settingsStorage.storeStatus(this.popupStatus);
-        });
-
-        this.prevTipButton.addEventListener('click', () => {
-            this.setCurrentTipNumber(this.popupStatus.currentTipNo - 1);
-            this.settingsStorage.storeStatus(this.popupStatus);
-        });
-
-        this.disableTipsCheckbox.addEventListener('change', (event) => {
-            this.popupStatus.enabled = !event.target.checked;
-            this.settingsStorage.storeStatus(this.popupStatus);
-        });
+        this.closeButton.addEventListener('click', this.closePopup.bind(this));
+        this.nextTipButton.addEventListener('click', this.showNextTip.bind(this));
+        this.prevTipButton.addEventListener('click', this.showPrevTip.bind(this));
+        this.disableTipsCheckbox.addEventListener('change', this.handleCheckboxToggle.bind(this));
+        this.boundKbEventsHandler = this.handleKeyboardEvents.bind(this);
+        document.addEventListener('keydown', this.boundKbEventsHandler);
     }
 }
