@@ -1,10 +1,12 @@
-import SettingsStorage from './persistance/settings-storage';
-import tips from "./tips.json";
+import SettingsStorage from './storage/settings-storage';
+import TipsStorage from "./storage/tips-storage";
 
 export default class Popuper {
 
     constructor() {
         this.settingsStorage = new SettingsStorage();
+        this.tipsStorage = new TipsStorage();
+
         this.popupContainer = document.getElementsByClassName('popup-container')[0];
         if (!this.popupContainer) {
             throw new Error('Something went wrong with the popup initiaization. We were unable to find the .popup-container element in the DOM.');
@@ -44,15 +46,18 @@ export default class Popuper {
         this.settingsStorage.restoreStatus().then(status => {
             this.popupStatus = status;
             if (this.popupStatus.enabled) {
-                this.updateTipsCount();
-                this.setCurrentTipNumber(this.popupStatus.currentTipNo);
-                this.setPopupVisibility(true);
+                this.tipsStorage.getTips().then(tips => {
+                    this.tips = tips;
+                    this.updateTipsCount();
+                    this.setCurrentTipNumber(this.popupStatus.currentTipNo);
+                    this.setPopupVisibility(true);
+                });
             }
         });
     }
 
     updateTipsCount() {
-        this.totalTipCountSpan.innerText = tips.length;
+        this.totalTipCountSpan.innerText = this.tips.length;
     }
 
     setPopupVisibility(isVisible) {
@@ -61,16 +66,16 @@ export default class Popuper {
 
     loadCurrentTip() {
         this.currentTipNoSpan.innerText = this.popupStatus.currentTipNo + 1;
-        this.tipTextParagraph.innerHTML = tips[this.popupStatus.currentTipNo];
+        this.tipTextParagraph.innerHTML = this.tips[this.popupStatus.currentTipNo];
     }
 
     setCurrentTipNumber(newTipNumber) {
         if (newTipNumber == undefined) {
-            this.popupStatus.currentTipNo = Math.floor(Math.random() * tips.length);
-        } else if (newTipNumber >= tips.length) {
+            this.popupStatus.currentTipNo = Math.floor(Math.random() * this.tips.length);
+        } else if (newTipNumber >= this.tips.length) {
             this.popupStatus.currentTipNo = newTipNumber = 0;
         } else if (newTipNumber < 0) {
-            this.popupStatus.currentTipNo = tips.length - 1;
+            this.popupStatus.currentTipNo = this.tips.length - 1;
         } else {
             this.popupStatus.currentTipNo = newTipNumber;
         }
