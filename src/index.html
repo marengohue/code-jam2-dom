@@ -6,7 +6,6 @@
     <meta name="description" content="Notification-like popup demo">
     <meta name="author" content="marengohue">
 </head>
-
 <body>
     <header>
         <a href="#">
@@ -16,6 +15,29 @@
     <main>
         This is the content of the webpage. We are not really interested in that since we've got the popup thingie to look at. Allright.
     </main>
-    <div class="popup-container"></div>
+    <div class="popup-container">
+        <header class="popup-header">
+            <h3 class="popup-header-text">Did you know?</h3>
+            <button class="close-button popup-button" aria-label="Close">x</button>
+        </header>
+        <p class="popup-contents">
+            This popup is implemented using just native javascript without any fancy frameworks or libraries. <em>Not even jQuery!</em>
+        </p>
+        <div class="popup-controls">
+            <div class="disable-tips-control">
+                <input type="checkbox" name="disable-tips" class="disable-tips"></input>
+                <label for="disable-tips">Disable tips</label>
+            </div>
+            <div class="current-tip-control">
+                <button class="prev-button popup-button" aria-label="Previous tip">&lt;</button>
+                <span class="tip-counter">
+                    <span class="current-tip-no">X</span>
+                    out of
+                    <span class="total-tip-count">10</span>
+                </span>
+                <button class="next-button popup-button" aria-label="Next tip">&gt;</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

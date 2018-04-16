@@ -1,3 +1,5 @@
 window.addEventListener('DOMContentLoaded', () => {
-    (new Popuper()).start();
+    setTimeout(() =>
+        new Popuper().start()
+    , 5000);
 }, true);
