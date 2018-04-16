@@ -9,6 +9,7 @@ export default class Popuper {
         if (!this.popupContainer) {
             throw new Error('Something went wrong with the popup initiaization. We were unable to find the .popup-container element in the DOM.');
         }
+        this.bindEvents();
     }
 
     get totalTipCountSpan() {
@@ -23,12 +24,28 @@ export default class Popuper {
         return this.popupContainer.getElementsByClassName('popup-contents')[0];
     }
 
+    get closeButton() {
+        return this.popupContainer.getElementsByClassName('close-button')[0];
+    }
+
+    get prevTipButton() {
+        return this.popupContainer.getElementsByClassName('prev-button')[0];
+    }
+
+    get nextTipButton() {
+        return this.popupContainer.getElementsByClassName('next-button')[0];
+    }
+
+    get disableTipsCheckbox() {
+        return this.popupContainer.getElementsByClassName('disable-tips')[0];
+    }
+
     start() {
-        this.settingsStorage.getPopuperStatus().then(status => {
-            if (status.popupsEnabled) {
+        this.settingsStorage.restoreStatus().then(status => {
+            this.popupStatus = status;
+            if (this.popupStatus.enabled) {
                 this.updateTipsCount();
-                this.setCurrentTipNumber(status.currentTipNo);
-                this.loadCurrentTip();
+                this.setCurrentTipNumber(this.popupStatus.currentTipNo);
                 this.setPopupVisibility(true);
             }
         });
@@ -43,19 +60,44 @@ export default class Popuper {
     }
 
     loadCurrentTip() {
-        this.currentTipNoSpan.innerText = this.currentTipNo + 1;
-        this.tipTextParagraph.innerHTML = tips[this.currentTipNo];
+        this.currentTipNoSpan.innerText = this.popupStatus.currentTipNo + 1;
+        this.tipTextParagraph.innerHTML = tips[this.popupStatus.currentTipNo];
     }
 
     setCurrentTipNumber(newTipNumber) {
         if (newTipNumber == undefined) {
-            this.currentTipNo = Math.floor(Math.random() * tips.length);
+            this.popupStatus.currentTipNo = Math.floor(Math.random() * tips.length);
         } else if (newTipNumber >= tips.length) {
-            this.currentTipNo = newTipNumber = 0;
+            this.popupStatus.currentTipNo = newTipNumber = 0;
         } else if (newTipNumber < 0) {
-            this.currentTipNo = tips.length - 1;
+            this.popupStatus.currentTipNo = tips.length - 1;
         } else {
-            this.currentTipNo = newTipNumber;
+            this.popupStatus.currentTipNo = newTipNumber;
         }
+
+        this.loadCurrentTip();
+    }
+
+    bindEvents() {
+        this.closeButton.addEventListener('click', () => {
+            this.popupStatus.enabled = false;
+            this.setPopupVisibility(false);
+            this.popupStatus.storeStatus(this.popupStatus);
+        });
+
+        this.nextTipButton.addEventListener('click', () => {
+            this.setCurrentTipNumber(this.popupStatus.currentTipNo + 1);
+            this.settingsStorage.storeStatus(this.popupStatus);
+        });
+
+        this.prevTipButton.addEventListener('click', () => {
+            this.setCurrentTipNumber(this.popupStatus.currentTipNo - 1);
+            this.settingsStorage.storeStatus(this.popupStatus);
+        });
+
+        this.disableTipsCheckbox.addEventListener('change', (event) => {
+            this.popupStatus.enabled = !event.target.checked;
+            this.settingsStorage.storeStatus(this.popupStatus);
+        });
     }
 }
