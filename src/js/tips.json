@@ -1,0 +1,8 @@
+[
+    "This popup is implemented using just native javascript without any fancy frameworks or libraries. <em>Not even jQuery!</em>",
+    "You can include arbitraty html elements in this popup, like <input type='checkbox'/> checkboxes or <button>buttons</button>... Doesn't seem very secure, but these don't come from the user, so it's allright.",
+    "One could get up to a maximum of <b>100</b> points for this task! It is not that easy though...",
+    "The deadline for this task is 16.04.2018 23:59. Delaying the task results in a severe penalty towards the final score.",
+    "This popup also works with keyboard. You can hit right and left arrow keys to move forward or backwards in the tips list.",
+    "The popup loops back to the very first tip when if you reach the end of the list. You can try this right now."
+]
